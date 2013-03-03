@@ -18,14 +18,15 @@ import org.skife.csv.*;;
 public class SimModel {
 	
 
-	public	  Date[] date = null;
-	public  double[] high = null;
-	public  double[] low = null;
-	public  double[] open = null;
-	public  double[] close = null;
-	public  double[] volume = null;
-	public String currency = null;
-	public Date stopHere = null;
+	private	  Date[] date = null;
+	private  double[] high = null;
+	private  double[] low = null;
+	private  double[] open = null;
+	private  double[] close = null;
+	private  double[] volume = null;
+	private String currency = null;
+	private Date stopHere = null;
+	private int index = 0;
 	
 	
 	public SimModel(String currency, Date stopHere){
@@ -132,23 +133,24 @@ public class SimModel {
 	
 	
 		 Date currentRow = null;
-		 int index = 0;
+		 index = 0;
 		 for (int i= 0; i < size; i++) {
 			 String[] row =  items.get(i);
 			 try {
 				
 				currentRow = new java.text.SimpleDateFormat("yyyy.MM.dd", Locale.ENGLISH).parse(row[0]);
-				if (currentRow.before(stopHere)) {
+				if (stopHere.after(currentRow)|| stopHere.equals(currentRow)) {
 				date[index] = currentRow;
 				open[index] = new Double(row[2]);
 				 high[index] = new Double(row[3]);
 				 low[index] = new Double(row[4]);
 				 close[index] = new Double(row[5]);
 				 volume[index] =0; //new Double(row[6]);
+				//	System.out.println(date[index]);
 				 index++;
-				//System.out.println(date[i]);
+		
 				} else {
-					System.out.println("test");
+					//System.out.println(stopHere + " < " + currentRow);
 				}
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
@@ -158,12 +160,8 @@ public class SimModel {
 			 
 			 
 		 }
-		 index--;
-		 open = Arrays.copyOfRange(open, 0, index);
-		 high = Arrays.copyOfRange(high, 0, index);
-		 low = Arrays.copyOfRange(low, 0, index);
-		 close = Arrays.copyOfRange(close, 0, index);
-		 date = Arrays.copyOfRange(date, 0, index); 
+		 //index--;
+		
 		 
 		
 	}
@@ -175,16 +173,43 @@ public class SimModel {
 		
 		String fileName = currency + "_daily.csv";
 		this.populateArrays(readCSV(fileName)); 
+		this.trimArraysForDaily();
 		return this;
 	}
 	
 	
 	
+	private void trimArraysForDaily() {
+		 trimArrays(); 
+		
+	}
+
+
+
+	private void trimArrays() {
+		open = Arrays.copyOfRange(open, 0, index);
+		 high = Arrays.copyOfRange(high, 0, index);
+		 low = Arrays.copyOfRange(low, 0, index);
+		 close = Arrays.copyOfRange(close, 0, index);
+		 date = Arrays.copyOfRange(date, 0, index);
+	}
+
+
+
 	public SimModel getMonthlyModel(){
 		
 		String fileName = currency + "_monthly.csv";
 		this.populateArrays(readCSV(fileName)); 
+		this.trimArraysForMonthly();
 		return this;
+	}
+
+
+
+	private void trimArraysForMonthly() {
+		index--;
+		trimArrays(); 
+		
 	}
 
 
